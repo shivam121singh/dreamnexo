@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Happy Anniversary, My Universe 💕</title>
+
+  <!-- Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- Canvas Confetti Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* ========================================================
+       DESIGN SYSTEM VARIABLES & RESETS
+       ======================================================== */
+    :root {
+      --primary: #ff2a6d;
+      --primary-dark: #b80042;
+      --primary-glow: rgba(255, 42, 109, 0.45);
+      --accent: #ffd166;
+      --ink: #2b0918;
+      --card-glass: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(255, 255, 255, 0.9);
+      --card-shadow: 0 20px 50px rgba(184, 0, 66, 0.15);
+      --retro-border: #3b1122;
+      --retro-pink: #ffeef3;
+      --retro-bar: #ffa8bf;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: #0f0514;
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      overflow-y: auto;
+      color: var(--ink);
+      position: relative;
+    }
+
+    /* Ambient Animated Aurora Mesh */
+    .aurora-backdrop {
+      position: fixed;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 25% 25%, #ff758f 0%, transparent 40%),
+                  radial-gradient(circle at 75% 30%, #b388eb 0%, transparent 40%),
+                  radial-gradient(circle at 45% 75%, #ff4d6d 0%, transparent 45%),
+                  radial-gradient(circle at 80% 80%, #ffd166 0%, transparent 35%),
+                  linear-gradient(135deg, #ffd6e0 0%, #f7cad0 50%, #e2afff 100%);
+      filter: blur(80px);
+      animation: driftAurora 25s infinite alternate ease-in-out;
+      z-index: 0;
+      pointer-events: none;
+    }
+    @keyframes driftAurora {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(6deg) scale(1.06); }
+      100% { transform: rotate(-6deg) scale(1.02); }
+    }
+
+    /* Cursor Trail Canvas */
+    #fx-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* Ambient Floating Glyphs */
+    .floating-symbols {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .fly-glyph {
+      position: absolute;
+      color: rgba(255, 42, 109, 0.35);
+      animation: floatGlider 10s linear infinite;
+    }
+    @keyframes floatGlider {
+      0% { transform: translateY(105vh) scale(0.6) rotate(0deg); opacity: 0; }
+      15% { opacity: 0.85; }
+      100% { transform: translateY(-15vh) scale(1.2) rotate(360deg); opacity: 0; }
+    }
+
+    /* App Stage Containers */
+    .app-screen {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 10;
+      transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .app-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.88) translateY(40px);
+      filter: blur(10px);
+      visibility: hidden;
+    }
+
+    /* ========================================================
+       STAGE 0: REALISTIC 3D FLOATING & OPENING GIFT BOX
+       ======================================================== */
+    .stage-box-viewport {
+      perspective: 1200px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .gift-3d-floating-rig {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: airFloat 3.8s ease-in-out infinite alternate;
+    }
+    @keyframes airFloat {
+      0% { transform: translateY(0px) rotateX(16deg) rotateY(-22deg); }
+      100% { transform: translateY(-28px) rotateX(10deg) rotateY(-12deg); }
+    }
+
+    /* Floor Reflection & Dynamic Shadow */
+    .gift-drop-shadow {
+      position: absolute;
+      bottom: -60px;
+      width: 160px;
+      height: 35px;
+      background: radial-gradient(ellipse at center, rgba(160, 10, 50, 0.45) 0%, transparent 70%);
+      border-radius: 50%;
+      animation: shadowPulse 3.8s ease-in-out infinite alternate;
+    }
+    @keyframes shadowPulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(0.75); opacity: 0.25; }
+    }
+
+    /* 3D Box Assembly */
+    .gift-cube-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      transform-style: preserve-3d;
+      transition: transform 0.4s ease;
+    }
+    .stage-box-viewport:hover .gift-cube-container {
+      transform: scale(1.05);
+    }
+
+    /* Box Face Styles */
+    .box-face {
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(135deg, #ff3366, #d90429);
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      box-shadow: inset 0 0 25px rgba(150, 0, 40, 0.45);
+    }
+    .box-face-front  { transform: translateZ(75px); }
+    .box-face-back   { transform: rotateY(180deg) translateZ(75px); }
+    .box-face-right  { transform: rotateY(90deg) translateZ(75px); background: #d90429; }
+    .box-face-left   { transform: rotateY(-90deg) translateZ(75px); background: #ff4777; }
+    .box-face-bottom { transform: rotateX(-90deg) translateZ(75px); background: #9d0208; }
+
+    /* The Opening Lid */
+    .box-lid {
+      position: absolute;
+      width: 158px;
+      height: 158px;
+      top: -4px;
+      left: -4px;
+      transform-style: preserve-3d;
+      transform: rotateX(90deg) translateZ(80px);
+      transform-origin: top;
+      transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .box-lid-surface {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ff4777, #d90429);
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      box-shadow: inset 0 0 20px rgba(150, 0, 40, 0.4);
+    }
+    .box-lid.opened {
+      transform: rotateX(230deg) translateZ(80px);
+    }
+
+    /* Ribbons */
+    .gold-ribbon-v {
+      position: absolute;
+      width: 30px;
+      height: 100%;
+      left: calc(50% - 15px);
+      background: linear-gradient(to right, #ffe066, #f4c430, #e0a91e);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.35);
+    }
+    .gold-ribbon-h {
+      position: absolute;
+      height: 30px;
+      width: 100%;
+      top: calc(50% - 15px);
+      background: linear-gradient(to bottom, #ffe066, #f4c430, #e0a91e);
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.35);
+    }
+    .lid-bow {
+      position: absolute;
+      top: calc(50% - 25px);
+      left: calc(50% - 25px);
+      font-size: 50px;
+      transform: translateZ(15px);
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+    }
+
+    /* Inner Light Burst when Opened */
+    .box-inner-glow {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      left: 15px;
+      top: 15px;
+      background: radial-gradient(circle, #fff, #ffd166, transparent);
+      opacity: 0;
+      transform: translateZ(20px);
+      transition: opacity 0.5s ease;
+      filter: blur(10px);
+      pointer-events: none;
+    }
+    .box-inner-glow.active {
+      opacity: 1;
+      animation: innerPulse 1s infinite alternate;
+    }
+    @keyframes innerPulse {
+      0% { transform: translateZ(20px) scale(0.9); }
+      100% { transform: translateZ(40px) scale(1.4); }
+    }
+
+    .open-prompt-pill {
+      margin-top: 75px;
+      background: var(--card-glass);
+      backdrop-filter: blur(18px);
+      border: 2px solid var(--card-border);
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #720026;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: pillGlow 1.8s infinite alternate;
+    }
+    @keyframes pillGlow {
+      0% { box-shadow: 0 10px 25px rgba(255, 42, 109, 0.2); }
+      100% { box-shadow: 0 16px 40px rgba(255, 42, 109, 0.5); transform: translateY(-3px); }
+    }
+
+    /* ========================================================
+       STAGE 1: CUPID'S BOW SHOOTING ARENA
+       ======================================================== */
+    .archery-deck {
+      width: 100%;
+      max-width: 400px;
+      height: 580px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .target-floating-letter {
+      background: var(--card-glass);
+      backdrop-filter: blur(25px);
+      border: 3px solid var(--card-border);
+      border-radius: 28px;
+      padding: 24px 30px;
+      width: 100%;
+      max-width: 320px;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+      animation: floatLetter 3.2s ease-in-out infinite alternate;
+      transition: transform 0.3s ease;
+    }
+    @keyframes floatLetter {
+      0% { transform: translateY(0) rotate(-1.5deg); }
+      100% { transform: translateY(-14px) rotate(1.5deg); }
+    }
+    .target-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #640d28;
+    }
+    .target-sub {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #a82046;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      margin-top: 4px;
+      margin-bottom: 14px;
+    }
+    .wax-seal-heart {
+      width: 68px;
+      height: 68px;
+      background: radial-gradient(circle, #ff2a6d, #b80042);
+      border-radius: 50%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      color: #fff;
+      box-shadow: 0 10px 25px var(--primary-glow), inset 0 2px 4px rgba(255,255,255,0.4);
+      animation: sealPulse 1.3s infinite ease-in-out;
+    }
+    @keyframes sealPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .bow-pivot-rig {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bow-graphic {
+      font-size: 90px;
+      transform-origin: center center;
+      animation: bowSweep 3.5s ease-in-out infinite alternate;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.15));
+    }
+    @keyframes bowSweep {
+      0% { transform: rotate(-55deg); }
+      50% { transform: rotate(-45deg); }
+      100% { transform: rotate(-35deg); }
+    }
+    .projectile-bolt {
+      position: absolute;
+      font-size: 42px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      pointer-events: none;
+      filter: drop-shadow(0 4px 8px rgba(255, 42, 109, 0.4));
+    }
+
+    .fire-bolt-btn {
+      background: linear-gradient(135deg, #ff2a6d 0%, #b80042 100%);
+      color: #ffffff;
+      border: none;
+      padding: 16px 42px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      border-radius: 50px;
+      box-shadow: 0 12px 30px var(--primary-glow);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .fire-bolt-btn:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 16px 36px var(--primary-glow);
+    }
+
+    /* ========================================================
+       STAGE 2: RETRO ARCADE "STILL LOVE ME?" WINDOW
+       ======================================================== */
+    .retro-arcade-window {
+      width: 100%;
+      max-width: 360px;
+      background: var(--retro-pink);
+      border: 4px solid var(--retro-border);
+      box-shadow: 10px 10px 0px var(--retro-border);
+      border-radius: 16px;
+      overflow: hidden;
+      animation: windowSpawn 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes windowSpawn {
+      0% { transform: scale(0.65) translateY(40px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .retro-bar {
+      background: var(--retro-bar);
+      border-bottom: 4px solid var(--retro-border);
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--retro-border);
+    }
+    .retro-bar-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    .mini-circle {
+      width: 11px;
+      height: 11px;
+      border: 2px solid var(--retro-border);
+      border-radius: 50%;
+    }
+
+    .retro-interior {
+      padding: 26px 20px 30px;
+      text-align: center;
+    }
+
+    .pixel-cat-avatar {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 16px;
+      image-rendering: pixelated;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><rect x="3" y="1" width="3" height="3" fill="%232b0918"/><rect x="10" y="1" width="3" height="3" fill="%232b0918"/><rect x="2" y="4" width="12" height="9" fill="%232b0918"/><rect x="4" y="6" width="2" height="2" fill="%23fff"/><rect x="10" y="6" width="2" height="2" fill="%23fff"/><rect x="7" y="8" width="2" height="1" fill="%23ff2a6d"/><rect x="3" y="8" width="2" height="1" fill="%23ffa8bf"/><rect x="11" y="8" width="2" height="1" fill="%23ffa8bf"/><rect x="5" y="13" width="2" height="2" fill="%23ff6384"/><rect x="9" y="13" width="2" height="2" fill="%23ff6384"/></svg>') center/contain no-repeat;
+      animation: catDance 0.85s steps(2, start) infinite alternate;
+    }
+    @keyframes catDance {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-8px); }
+    }
+
+    .retro-question {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      line-height: 1.8;
+      color: var(--retro-border);
+      margin-bottom: 24px;
+      min-height: 52px;
+    }
+
+    .retro-choices {
+      position: relative;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 22px;
+    }
+    .arcade-btn {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      padding: 12px 22px;
+      border: 3.5px solid var(--retro-border);
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--retro-border);
+      transition: transform 0.1s;
+    }
+    .arcade-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 var(--retro-border);
+    }
+    #arcade-yes {
+      background: #7ae582;
+      color: #0b3814;
+    }
+    #arcade-no {
+      background: #ff527f;
+      color: #3b0615;
+      position: relative;
+      transition: transform 0.15s ease-out;
+    }
+
+    /* ========================================================
+       STAGE 3: THE FINALE DASHBOARD & CONTINUOUS MARQUEE
+       ======================================================== */
+    .dashboard-panel {
+      width: 100%;
+      max-width: 680px;
+      background: var(--card-glass);
+      backdrop-filter: blur(35px);
+      border: 3px solid var(--card-border);
+      border-radius: 36px;
+      padding: 32px 28px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-height: 85vh;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .dashboard-panel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .dashboard-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .dashboard-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #590d22;
+      letter-spacing: -0.5px;
+    }
+    .dashboard-subtitle {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #a4133c;
+      margin-top: 4px;
+    }
+
+    /* Tab Switcher Bar */
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      padding: 6px;
+      border-radius: 50px;
+      margin-bottom: 26px;
+      width: 100%;
+      max-width: 500px;
+      justify-content: space-between;
+    }
+    .tab-pill {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: none;
+      background: transparent;
+      color: #590d22;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .tab-pill.active {
+      background: #ff2a6d;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(255, 42, 109, 0.35);
+    }
+
+    .tab-content {
+      width: 100%;
+      display: none;
+      animation: tabFadeIn 0.4s ease-out;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes tabFadeIn {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tab 1: Handwritten Letter */
+    .parchment-letter {
+      background: linear-gradient(135deg, #fff9fb, #fff0f5);
+      border: 2px dashed #ff8da1;
+      border-radius: 24px;
+      padding: 28px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.55rem;
+      line-height: 1.6;
+      color: #4a1525;
+      box-shadow: inset 0 0 20px rgba(255, 141, 161, 0.15);
+      position: relative;
+    }
+    .letter-signature {
+      text-align: right;
+      margin-top: 18px;
+      font-weight: 700;
+      color: #c9184a;
+    }
+
+    /* Tab 2: INFINITE CONTINUOUS MARQUEE MEMORY VAULT */
+    .marquee-wrapper {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+      padding: 10px 0 20px;
+      mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 20px;
+      width: max-content;
+      animation: autoMarqueeScroll 28s linear infinite;
+    }
+    .marquee-wrapper:hover .marquee-track {
+      animation-play-state: paused;
+    }
+
+    @keyframes autoMarqueeScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .polaroid-card {
+      width: 190px;
+      flex-shrink: 0;
+      background: #fff;
+      padding: 12px 12px 18px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      text-align: center;
+    }
+    .polaroid-card:hover {
+      transform: translateY(-8px) rotate(2deg) scale(1.05);
+    }
+    .polaroid-frame {
+      width: 100%;
+      height: 170px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .polaroid-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .polaroid-card:hover .polaroid-frame img {
+      transform: scale(1.08);
+    }
+    .polaroid-caption {
+      margin-top: 12px;
+      font-family: 'Caveat', cursive;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #590d22;
+    }
+
+    /* Tab 3: Time Counter Engine */
+    .timer-deck {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .timer-tile {
+      background: #fff;
+      padding: 16px 8px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+      border: 1.5px solid rgba(255, 42, 109, 0.2);
+    }
+    .timer-number {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #ff2a6d;
+      font-feature-settings: "tnum";
+    }
+    .timer-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #a4133c;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+    .love-milestone-banner {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 20px;
+      padding: 14px;
+      text-align: center;
+      font-weight: 700;
+      color: #590d22;
+      font-size: 0.95rem;
+    }
+
+    /* Tab 4: Romantic Coupon Vouchers */
+    .coupon-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .coupon-ticket {
+      background: #ffffff;
+      border: 2px dashed #ff2a6d;
+      border-radius: 18px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.04);
+      transition: all 0.2s ease;
+    }
+    .coupon-left h4 {
+      font-size: 1.05rem;
+      color: #590d22;
+      font-weight: 800;
+    }
+    .coupon-left p {
+      font-size: 0.8rem;
+      color: #8c2447;
+      margin-top: 2px;
+    }
+    .claim-voucher-btn {
+      background: #ff2a6d;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px var(--primary-glow);
+      transition: transform 0.1s;
+    }
+    .claim-voucher-btn.redeemed {
+      background: #7ae582;
+      color: #0b3814;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Lights & Shaders -->
+  <div class="aurora-backdrop"></div>
+  <div class="floating-symbols" id="glyph-layer"></div>
+  <canvas id="fx-canvas"></canvas>
+
+  <!-- Background Song (Place song.mp3 in the same folder) -->
+  <audio id="love-track" loop preload="auto">
+    <source src="song.mp3" type="audio/mpeg">
+    <source src="song.ogg" type="audio/ogg">
+    <source src="https://actions.google.com/sounds/v1/ambiences/outdoor_celebration.ogg" type="audio/ogg">
+  </audio>
+
+  <!-- ==============================================
+       STAGE 0: REAL FLOATING 3D BOX WITH LID UNBOXING
+       ============================================== -->
+  <div class="app-screen" id="stage-0">
+    <div class="stage-box-viewport" id="box-interactive-scene">
+      
+      <!-- Floating Rig with 3D Geometry -->
+      <div class="gift-3d-floating-rig">
+        <div class="gift-cube-container" id="cube-container">
+          
+          <!-- Box Faces -->
+          <div class="box-face box-face-front">
+            <div class="gold-ribbon-v"></div>
+            <div class="gold-ribbon-h"></div>
+          </div>
+          <div class="box-face box-face-back">
+            <div class="gold-ribbon-v"></div>
+            <div class="gold-ribbon-h"></div>
+          </div>
+          <div class="box-face box-face-right">
+            <div class="gold-ribbon-v"></div>
+            <div class="gold-ribbon-h"></div>
+          </div>
+          <div class="box-face box-face-left">
+            <div class="gold-ribbon-v"></div>
+            <div class="gold-ribbon-h"></div>
+          </div>
+          <div class="box-face box-face-bottom"></div>
+
+          <!-- Interior Light Burst (Revealed when open) -->
+          <div class="box-inner-glow" id="inner-glow"></div>
+
+          <!-- Realistic Hinged Lid -->
+          <div class="box-lid" id="box-lid">
+            <div class="box-lid-surface">
+              <div class="gold-ribbon-v"></div>
+              <div class="gold-ribbon-h"></div>
+              <div class="lid-bow">🎀</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Floor Drop Shadow -->
+        <div class="gift-drop-shadow"></div>
+      </div>
+
+      <div class="open-prompt-pill">
+        <span>Click the box to open ✨</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==============================================
+       STAGE 1: CUPID'S BOW SHOOTING MINI-GAME
+       ============================================== -->
+  <div class="app-screen hidden" id="stage-1">
+    <div class="archery-deck">
+      <div class="target-floating-letter" id="target-letter">
+        <h2 class="target-title">Happy 1 Year Together</h2>
+        <p class="target-sub">Aim for the heart</p>
+        <div class="wax-seal-heart">💌</div>
+      </div>
+
+      <div class="bow-pivot-rig">
+        <div class="bow-graphic">🏹</div>
+        <div class="projectile-bolt" id="arrow-bolt">💘</div>
+      </div>
+
+      <button class="fire-bolt-btn" id="fire-arrow-btn">
+        <span>Shoot Cupid's Arrow</span>
+        <span>🎯</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       STAGE 2: RETRO OS ARCADE LOVE WINDOW
+       ============================================== -->
+  <div class="app-screen hidden" id="stage-2">
+    <div class="retro-arcade-window">
+      <div class="retro-bar">
+        <span>LOVE_OS_V1.EXE</span>
+        <div class="retro-bar-buttons">
+          <div class="mini-circle" style="background:#ffd166;"></div>
+          <div class="mini-circle" style="background:#ff527f;"></div>
+        </div>
+      </div>
+      <div class="retro-interior">
+        <div class="pixel-cat-avatar"></div>
+        <div class="retro-question" id="retro-dialogue">
+          Happy 1 year together my love!<br/><br/>
+          Still love me?
+        </div>
+        <div class="retro-choices" id="choice-row">
+          <button class="arcade-btn" id="arcade-yes">YES</button>
+          <button class="arcade-btn" id="arcade-no">NO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       STAGE 3: THE FINALE DASHBOARD WITH AUTO MARQUEE
+       ============================================== -->
+  <div class="app-screen hidden" id="stage-3">
+    <div class="dashboard-panel">
+      <div class="dashboard-header">
+        <h1 class="dashboard-title">Forever & Always, You 💕</h1>
+        <p class="dashboard-subtitle">A collection of everything that makes us special</p>
+      </div>
+
+      <!-- Navigation Tab Bar -->
+      <div class="nav-tabs">
+        <button class="tab-pill active" data-tab="tab-letter">💌 Letter</button>
+        <button class="tab-pill" data-tab="tab-photos">📸 Memories</button>
+        <button class="tab-pill" data-tab="tab-timer">⏳ Time</button>
+        <button class="tab-pill" data-tab="tab-coupons">🎟️ Coupons</button>
+      </div>
+
+      <!-- Tab 1: Handwritten Letter -->
+      <div class="tab-content active" id="tab-letter">
+        <div class="parchment-letter">
+          My Dearest Love,<br/><br/>
+          365 days ago, you walked into my world and made everything brighter, warmer, and filled with purpose. Every smile you give me, every laugh we share, and every quiet moment together has been the greatest gift of my life.<br/><br/>
+          Thank you for being my safe place, my biggest cheer, and my favorite adventure. Happy 1st Anniversary! Here is to forever and a million more memories with you.
+          <div class="letter-signature">— Yours Forever & Always ❤️</div>
+        </div>
+      </div>
+
+      <!-- Tab 2: INFINITE AUTOMATIC MARQUEE MEMORY VAULT -->
+      <div class="tab-content" id="tab-photos">
+        <div class="marquee-wrapper">
+          <div class="marquee-track">
+            
+            <!-- Set 1 -->
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80" alt="Holding hands" />
+              </div>
+              <div class="polaroid-caption">Where it began 💕</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=600&q=80" alt="Couple laughing" />
+              </div>
+              <div class="polaroid-caption">Endless laughs ✨</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80" alt="Golden hour love" />
+              </div>
+              <div class="polaroid-caption">Golden hours 🌅</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=600&q=80" alt="Romantic sunset" />
+              </div>
+              <div class="polaroid-caption">To forever & more 💖</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80" alt="Wedding couple" />
+              </div>
+              <div class="polaroid-caption">My safe place 🏡</div>
+            </div>
+
+            <!-- Set 2 (Seamless loop clone) -->
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=600&q=80" alt="Holding hands" />
+              </div>
+              <div class="polaroid-caption">Where it began 💕</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=600&q=80" alt="Couple laughing" />
+              </div>
+              <div class="polaroid-caption">Endless laughs ✨</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=600&q=80" alt="Golden hour love" />
+              </div>
+              <div class="polaroid-caption">Golden hours 🌅</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=600&q=80" alt="Romantic sunset" />
+              </div>
+              <div class="polaroid-caption">To forever & more 💖</div>
+            </div>
+
+            <div class="polaroid-card">
+              <div class="polaroid-frame">
+                <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80" alt="Wedding couple" />
+              </div>
+              <div class="polaroid-caption">My safe place 🏡</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Time Counter Engine -->
+      <div class="tab-content" id="tab-timer">
+        <div class="timer-deck">
+          <div class="timer-tile">
+            <div class="timer-number" id="time-days">365</div>
+            <div class="timer-label">Days</div>
+          </div>
+          <div class="timer-tile">
+            <div class="timer-number" id="time-hours">00</div>
+            <div class="timer-label">Hours</div>
+          </div>
+          <div class="timer-tile">
+            <div class="timer-number" id="time-minutes">00</div>
+            <div class="timer-label">Mins</div>
+          </div>
+          <div class="timer-tile">
+            <div class="timer-number" id="time-seconds">00</div>
+            <div class="timer-label">Secs</div>
+          </div>
+        </div>
+        <div class="love-milestone-banner">
+          And every single second has been completely worth it. ✨
+        </div>
+      </div>
+
+      <!-- Tab 4: Romantic Coupon Vouchers -->
+      <div class="tab-content" id="tab-coupons">
+        <div class="coupon-stack">
+          <div class="coupon-ticket">
+            <div class="coupon-left">
+              <h4>Midnight Long Drive 🚗</h4>
+              <p>Redeemable anytime for ice cream & road trips</p>
+            </div>
+            <button class="claim-voucher-btn" onclick="redeemCoupon(this)">Redeem</button>
+          </div>
+          <div class="coupon-ticket">
+            <div class="coupon-left">
+              <h4>Unlimited Warm Hugs Pass 🤗</h4>
+              <p>Non-expiring pass for infinite comfort hugs</p>
+            </div>
+            <button class="claim-voucher-btn" onclick="redeemCoupon(this)">Redeem</button>
+          </div>
+          <div class="coupon-ticket">
+            <div class="coupon-left">
+              <h4>Your Pick Dinner Date 🍝</h4>
+              <p>I cook or take you anywhere your heart craves</p>
+            </div>
+            <button class="claim-voucher-btn" onclick="redeemCoupon(this)">Redeem</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ========================================================
+       1. SPARKLE CURSOR PARTICLE ENGINE
+       ======================================================== */
+    const fxCanvas = document.getElementById('fx-canvas');
+    const fxCtx = fxCanvas.getContext('2d');
+    let sparkles = [];
+
+    function syncCanvas() {
+      fxCanvas.width = window.innerWidth;
+      fxCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', syncCanvas);
+    syncCanvas();
+
+    function spawnSparkle(x, y) {
+      const chars = ['✨', '💖', '🌸', '♥', '💫'];
+      sparkles.push({
+        x, y,
+        char: chars[Math.floor(Math.random() * chars.length)],
+        size: Math.random() * 12 + 10,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.7) * 2.5,
+        alpha: 1
+      });
+    }
+    window.addEventListener('mousemove', e => { if (Math.random() > 0.4) spawnSparkle(e.clientX, e.clientY); });
+    window.addEventListener('touchmove', e => { spawnSparkle(e.touches[0].clientX, e.touches[0].clientY); });
+
+    function renderSparkles() {
+      fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+      for (let i = sparkles.length - 1; i >= 0; i--) {
+        const s = sparkles[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.alpha -= 0.02;
+
+        fxCtx.font = `${s.size}px 'Outfit'`;
+        fxCtx.globalAlpha = Math.max(0, pAlpha(s.alpha));
+        fxCtx.fillText(s.char, s.x, s.y);
+
+        if (s.alpha <= 0) sparkles.splice(i, 1);
+      }
+      fxCtx.globalAlpha = 1;
+      requestAnimationFrame(renderSparkles);
+    }
+    function pAlpha(a) { return a < 0 ? 0 : a; }
+    renderSparkles();
+
+    // Floating Ambient Glyphs
+    const glyphLayer = document.getElementById('glyph-layer');
+    for (let i = 0; i < 20; i++) {
+      const g = document.createElement('div');
+      g.className = 'fly-glyph';
+      g.innerHTML = ['♥', '💖', '🌸', '✨'][Math.floor(Math.random() * 4)];
+      g.style.left = `${Math.random() * 100}vw`;
+      g.style.animationDelay = `${Math.random() * 9}s`;
+      g.style.fontSize = `${16 + Math.random() * 18}px`;
+      glyphLayer.appendChild(g);
+    }
+
+    /* ========================================================
+       2. AUDIO PLAYBACK CONTROLLER
+       ======================================================== */
+    const loveTrack = document.getElementById('love-track');
+    function startMusic() {
+      loveTrack.play().catch(e => console.log('Audio autoplay policy override:', e));
+    }
+
+    /* ========================================================
+       3. INTERACTIVE 3D BOX OPENING & STAGE TRANSITIONS
+       ======================================================== */
+    const stage0 = document.getElementById('stage-0');
+    const stage1 = document.getElementById('stage-1');
+    const stage2 = document.getElementById('stage-2');
+    const stage3 = document.getElementById('stage-3');
+
+    const boxTrigger = document.getElementById('box-interactive-scene');
+    const boxLid = document.getElementById('box-lid');
+    const innerGlow = document.getElementById('inner-glow');
+
+    const fireBtn = document.getElementById('fire-arrow-btn');
+    const arrowBolt = document.getElementById('arrow-bolt');
+    const targetLetter = document.getElementById('target-letter');
+    const arcadeNo = document.getElementById('arcade-no');
+    const arcadeYes = document.getElementById('arcade-yes');
+
+    // STAGE 0: Click Box -> Open 3D Lid & Launch Archery Stage
+    let boxOpened = false;
+    boxTrigger.addEventListener('click', () => {
+      if (boxOpened) return;
+      boxOpened = true;
+
+      // Start the music immediately on user gesture
+      startMusic();
+
+      // Animate 3D Lid Opening backwards
+      boxLid.classList.add('opened');
+      innerGlow.classList.add('active');
+
+      // Burst gold & hot-pink confetti out of the box
+      confetti({
+        particleCount: 80,
+        spread: 90,
+        origin: { y: 0.55 },
+        colors: ['#ffd166', '#ff2a6d', '#ffffff']
+      });
+
+      // Transition to Stage 1 after opening animation plays
+      setTimeout(() => {
+        stage0.classList.add('hidden');
+        stage1.classList.remove('hidden');
+      }, 950);
+    });
+
+    // STAGE 1: Fire Cupid's Arrow
+    let hasShot = false;
+    fireBtn.addEventListener('click', () => {
+      if (hasShot) return;
+      hasShot = true;
+
+      // Accelerated Arrow flight
+      arrowBolt.style.transition = 'all 0.38s cubic-bezier(0.2, 0.9, 0.2, 1)';
+      arrowBolt.style.top = '-260px';
+
+      setTimeout(() => {
+        targetLetter.style.transform = 'scale(1.22) rotate(3deg)';
+        confetti({
+          particleCount: 90,
+          spread: 80,
+          colors: ['#ff2a6d', '#8338ec', '#ffd166'],
+          origin: { y: 0.3 }
+        });
+      }, 300);
+
+      setTimeout(() => {
+        stage1.classList.add('hidden');
+        stage2.classList.remove('hidden');
+      }, 1050);
+    });
+
+    // STAGE 2: Playful Evasive "NO" Button
+    function dodgeNo() {
+      const rx = (Math.random() - 0.5) * 150;
+      const ry = (Math.random() - 0.5) * 80;
+      arcadeNo.style.transform = `translate(${rx}px, ${ry}px)`;
+    }
+    arcadeNo.addEventListener('mouseenter', dodgeNo);
+    arcadeNo.addEventListener('touchstart', (e) => { e.preventDefault(); dodgeNo(); });
+    arcadeNo.addEventListener('click', dodgeNo);
+
+    // STAGE 2: "YES" Climax -> Transition to Finale Dashboard
+    arcadeYes.addEventListener('click', () => {
+      confetti({
+        particleCount: 120,
+        spread: 100,
+        origin: { y: 0.5 }
+      });
+
+      stage2.classList.add('hidden');
+      stage3.classList.remove('hidden');
+
+      // 4-Second Firework Finale Celebration
+      const duration = 4000;
+      const end = Date.now() + duration;
+      const timer = setInterval(() => {
+        if (Date.now() > end) return clearInterval(timer);
+        confetti({
+          particleCount: 40,
+          startVelocity: 30,
+          spread: 360,
+          origin: { x: Math.random(), y: Math.random() - 0.2 }
+        });
+      }, 300);
+    });
+
+    /* ========================================================
+       4. TAB SWITCHER ENGINE
+       ======================================================== */
+    const tabButtons = document.querySelectorAll('.tab-pill');
+    const tabPanels = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active'));
+        tabPanels.forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Coupon Claim Action
+    function redeemCoupon(btn) {
+      btn.classList.add('redeemed');
+      btn.textContent = 'Redeemed 💕';
+      confetti({
+        particleCount: 30,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    }
+
+    /* ========================================================
+       5. REAL-TIME LOVE COUNTER ENGINE
+       ======================================================== */
+    const anniversaryDate = new Date("October 8, 2025 00:00:00").getTime();
+
+    function updateCounter() {
+      const now = new Date().getTime();
+      const difference = now - anniversaryDate;
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+      document.getElementById('time-days').textContent = days;
+      document.getElementById('time-hours').textContent = hours < 10 ? '0' + hours : hours;
+      document.getElementById('time-minutes').textContent = minutes < 10 ? '0' + minutes : minutes;
+      document.getElementById('time-seconds').textContent = seconds < 10 ? '0' + seconds : seconds;
+    }
+    setInterval(updateCounter, 1000);
+    updateCounter();
+  </script>
+</body>
+</html>
